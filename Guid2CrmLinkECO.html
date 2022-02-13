@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>GUID to CRM links</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("input").change(refresh);
+            $("input").mouseup(refresh);
+        });
+		function refresh(e) {
+				console.log($("#env").val());
+				var server=$("#env").val().split(";")[0];
+				var org=$("#env").val().split(";")[1];
+                $(e.target).nextAll().remove();
+                var ids = $(e.target).val().split(",");
+                ids.reverse().forEach(function (id) {
+                    var url = $(e.target).prev().attr("urltemplate").replace("{server}", server).replace("{org}", org).replace("{id}", id);
+                    $(e.target).after($("<p></p>").append($("<a></a>").attr("href", url).attr("target", "_blank").html(url)));
+                });
+            }
+    </script>
+</head>
+<body>
+<p>Environment <select id="env" name="env">
+<option selected value="ecoplayground">ecoplayground</option>
+<option value="ecodatamigration">ecodatamigration</option>
+<option value="eco">PROD</option>
+</select></p>
+    <p>
+        <span urltemplate="https://{server}.crm365.legalaid.ab.ca/{org}/main.aspx?etc=2&extraqs=formid%3de5f1753f-1ee3-4454-83b2-f8f9ec574e49&id=%7b{id}%7d&pagetype=entityrecord">
+            Contact:
+        </span> <input />
+    </p>
+</body>
+</html>
