@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌈</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      border-collapse: collapse;
+      width: auto;
+      max-width: 90ch;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .env-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .env-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .env-controls input[type="text"] {
+      width: 90px;
+      padding: 2px 4px;
+      text-align: center;
+    }
+    .color-btn {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      font-size: 0.8em;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <table id="envTable">
+    <thead>
+      <tr></tr>
+    </thead>
+    <tbody>
+      <tr></tr> <!-- CRM Main Page -->
+      <tr></tr> <!-- Legacy Settings -->
+      <tr></tr> <!-- Adv. Find -->
+      <tr></tr> <!-- Default Solution -->
+      <tr></tr> <!-- WebAPI -->
+    </tbody>
+    <tfoot>
+      <tr></tr>
+    </tfoot>
+  </table>
+
+  <script>
+    const STORAGE_KEY = 'powerPlatformEnvs';
+    const COLOR_KEY = 'powerPlatformColors';
+
+    const linkTypes = [
+      { name: "CRM Main Page", path: "" },
+      { name: "Legacy Settings", path: "main.aspx?settingsonly=true" },
+      { name: "Adv. Find", path: "main.aspx?pagetype=advancedfind" },
+      { name: "Default Solution", path: "tools/solution/edit.aspx?id=%7BFD140AAF-4DF4-11DD-BD17-0019B9312238%7D" },
+      { name: "WebAPI", path: "api/data/v9.2/contacts?$top=2" }
+    ];
+
+    const popularColors = [
+      '#ffffff',  // white
+      '#fef9c3',  // pale yellow
+      '#d1fae5',  // mint
+      '#dbeafe',  // powder blue
+      '#ede9fe',  // lavender
+      '#ffe4e6'   // blush pink
+    ];
+
+    const table = document.getElementById('envTable');
+    const theadRow = table.querySelector('thead tr');
+    const tbodyRows = Array.from(table.querySelectorAll('tbody tr'));
+    const tfootRow = table.querySelector('tfoot tr');
+
+    function getEnvsFromStorage() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function getColorsFromStorage() {
+      const stored = localStorage.getItem(COLOR_KEY);
+      return stored ? JSON.parse(stored) : {};
+    }
+
+    function saveEnvsToStorage(envs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(envs));
+    }
+
+    function saveColorsToStorage(colors) {
+      localStorage.setItem(COLOR_KEY, JSON.stringify(colors));
+    }
+
+    function getDomain(env) {
+      return /\.crm\d*$/.test(env) ? `${env}.dynamics.com` : `${env}.crm3.dynamics.com`;
+    }
+
+    function renderTable(envs) {
+      const colors = getColorsFromStorage();
+
+      theadRow.innerHTML = '';
+      tbodyRows.forEach(row => row.innerHTML = '');
+      tfootRow.innerHTML = '';
+
+      envs.forEach((env, colIndex) => {
+        const envColor = colors[env] || '#ffffff';
+
+        // Header
+        const th = document.createElement('th');
+        th.style.backgroundColor = envColor;
+
+        const container = document.createElement('div');
+        container.className = 'env-header';
+
+        const controlLine = document.createElement('div');
+        controlLine.className = 'env-controls';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = env;
+        nameInput.addEventListener('change', () => {
+          const newName = nameInput.value.trim();
+          if (!newName) return;
+          const oldName = envs[colIndex];
+          envs[colIndex] = newName;
+
+          const colorData = getColorsFromStorage();
+          if (colorData[oldName]) {
+            colorData[newName] = colorData[oldName];
+            delete colorData[oldName];
+            saveColorsToStorage(colorData);
+          }
+
+          saveEnvsToStorage(envs);
+          renderTable(envs);
+        });
+
+        controlLine.appendChild(nameInput);
+        container.appendChild(controlLine);
+
+        const colorLine = document.createElement('div');
+        colorLine.style.display = 'flex';
+        colorLine.style.flexWrap = 'wrap';
+        colorLine.style.gap = '4px';
+        popularColors.forEach(color => {
+          const colorBtn = document.createElement('div');
+          colorBtn.className = 'color-btn';
+          colorBtn.style.backgroundColor = color;
+          colorBtn.title = color;
+          colorBtn.addEventListener('click', () => {
+            const colorData = getColorsFromStorage();
+            colorData[env] = color;
+            saveColorsToStorage(colorData);
+            renderTable(envs);
+          });
+          colorLine.appendChild(colorBtn);
+        });
+
+        container.appendChild(colorLine);
+        th.appendChild(container);
+        theadRow.appendChild(th);
+
+        // Body rows
+        linkTypes.forEach((link, rowIndex) => {
+          const td = document.createElement('td');
+          td.style.backgroundColor = envColor;
+          const domain = getDomain(env);
+          const href = `https://${domain}/${link.path}`;
+          const a = document.createElement('a');
+          a.href = href;
+          a.textContent = link.name;
+          a.target = '_blank';
+          td.appendChild(a);
+          tbodyRows[rowIndex].appendChild(td);
+        });
+
+        // Delete button
+        const tdDelete = document.createElement('td');
+        tdDelete.style.backgroundColor = envColor;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', () => {
+          envs.splice(colIndex, 1);
+          const colorData = getColorsFromStorage();
+          delete colorData[env];
+          saveColorsToStorage(colorData);
+          saveEnvsToStorage(envs);
+          renderTable(envs);
+        });
+        tdDelete.appendChild(delBtn);
+        tfootRow.appendChild(tdDelete);
+      });
+
+      // New env input column
+     // New env input column with "+" button toggle
+const th = document.createElement('th');
+const container = document.createElement('div');
+container.className = 'env-header';
+
+let isAdding = false;
+
+const plusBtn = document.createElement('button');
+plusBtn.textContent = '+';
+plusBtn.style.padding = '4px 8px';
+plusBtn.style.fontSize = '16px';
+plusBtn.style.cursor = 'pointer';
+plusBtn.title = 'Add Environment';
+
+const input = document.createElement('input');
+input.type = 'text';
+input.placeholder = 'New env';
+input.style.textAlign = 'center';
+input.style.display = 'none';
+input.addEventListener('change', () => {
+  const newEnv = input.value.trim();
+  if (newEnv) {
+    envs.push(newEnv);
+    saveEnvsToStorage(envs);
+  }
+  renderTable(envs);
+});
+
+plusBtn.addEventListener('click', () => {
+  isAdding = true;
+  plusBtn.style.display = 'none';
+  input.style.display = 'inline-block';
+  input.focus();
+});
+
+container.appendChild(plusBtn);
+container.appendChild(input);
+th.appendChild(container);
+theadRow.appendChild(th);
+
+
+      linkTypes.forEach((_, i) => {
+        const td = document.createElement('td');
+        td.innerHTML = '&nbsp;';
+        tbodyRows[i].appendChild(td);
+      });
+
+      const td = document.createElement('td');
+      td.innerHTML = '&nbsp;';
+      tfootRow.appendChild(td);
+    }
+
+    renderTable(getEnvsFromStorage());
+  </script>
+
+</body>
+</html>
