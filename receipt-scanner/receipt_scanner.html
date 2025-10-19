@@ -714,6 +714,23 @@
             }
         });
 
+        // Auto-fill config from multi-line paste in first field
+        document.getElementById('azureEndpoint').addEventListener('paste', (e) => {
+            const pastedText = e.clipboardData.getData('text');
+            const lines = pastedText.split('\n').map(line => line.trim()).filter(line => line);
+
+            // If pasted 4 lines, auto-fill all fields
+            if (lines.length === 4) {
+                e.preventDefault(); // Prevent normal paste
+                document.getElementById('azureEndpoint').value = lines[0];
+                document.getElementById('azureKey').value = lines[1];
+                document.getElementById('sheetsUrl').value = lines[2];
+                document.getElementById('sheetUrl').value = lines[3];
+                saveConfig();
+                showAlert('Configuration auto-filled from paste!', 'success');
+            }
+        });
+
         // Config inputs - save on change
         document.getElementById('azureEndpoint').addEventListener('blur', saveConfig);
         document.getElementById('azureKey').addEventListener('blur', saveConfig);
