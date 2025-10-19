@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .config-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .config-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .config-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .config-section small {
+            color: #666;
+            display: block;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #eef1ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e0e7ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            color: #666;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .result-item .value {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .items-list {
+            margin-top: 10px;
+        }
+
+        .item-row {
+            padding: 8px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-badge.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.not-ready {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>=� Receipt Scanner</h1>
+            <p>Upload receipts, extract data with Azure AI, save to Google Sheets111</p>
+        </div>
+
+        <div class="content">
+            <!-- Configuration Section -->
+            <div class="config-section">
+                <h2>� Configuration</h2>
+
+                <label for="azureEndpoint">Azure Form Recognizer Endpoint:</label>
+                <input
+                    type="text"
+                    id="azureEndpoint"
+                    placeholder="https://your-resource.cognitiveservices.azure.com/"
+                    value="">
+                <small>Format: https://YOUR-RESOURCE.cognitiveservices.azure.com/</small>
+
+                <label for="azureKey">Azure API Key:</label>
+                <input
+                    type="password"
+                    id="azureKey"
+                    placeholder="Your Azure API key"
+                    value="">
+                <small>Your Azure Form Recognizer subscription key</small>
+
+                <label for="sheetsUrl">Google Apps Script Web App URL:</label>
+                <input
+                    type="text"
+                    id="sheetsUrl"
+                    placeholder="https://script.google.com/macros/s/YOUR-SCRIPT-ID/exec"
+                    value="">
+                <small>Get this after setting up your Google Apps Script (see instructions below)</small>
+
+                <div id="configStatus"></div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alertBox" class="alert"></div>
+
+            <!-- Upload Area -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">=�</div>
+                <h3>Upload Receipt Image</h3>
+                <p>Click to select or drag and drop</p>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing receipt with Azure AI...</p>
+            </div>
+
+            <!-- Image Preview -->
+            <div class="preview-container" id="previewContainer">
+                <h3>Uploaded Image:</h3>
+                <img id="previewImage" class="preview-image" alt="Receipt preview">
+            </div>
+
+            <!-- Results -->
+            <div class="results-container" id="resultsContainer">
+                <h2>Extracted Data:</h2>
+
+                <div class="result-item">
+                    <label>Merchant:</label>
+                    <div class="value" id="merchantName">-</div>
+                </div>
+
+                <div class="result-item">
+                    <label>Date:</label>
+                    <div class="value" id="transactionDate">-</div>
+                </div>
+
+                <div class="result-item">
+                    <label>Time:</label>
+                    <div class="value" id="transactionTime">-</div>
+                </div>
+
+                <div class="result-item">
+                    <label>Total:</label>
+                    <div class="value" id="total">-</div>
+                </div>
+
+                <div class="result-item">
+                    <label>Tax:</label>
+                    <div class="value" id="tax">-</div>
+                </div>
+
+                <div class="result-item">
+                    <label>Items:</label>
+                    <div class="items-list" id="itemsList">
+                        <p>No items found</p>
+                    </div>
+                </div>
+
+                <button class="button" id="saveToSheets">=� Save to Google Sheets</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let config = {
+            azureEndpoint: '',
+            azureKey: '',
+            sheetsUrl: ''
+        };
+
+        let currentReceiptData = null;
+
+        // Load saved config from localStorage
+        function loadConfig() {
+            const saved = localStorage.getItem('receiptScannerConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('azureEndpoint').value = config.azureEndpoint || '';
+                document.getElementById('azureKey').value = config.azureKey || '';
+                document.getElementById('sheetsUrl').value = config.sheetsUrl || '';
+            }
+            updateConfigStatus();
+        }
+
+        // Save config to localStorage
+        function saveConfig() {
+            config.azureEndpoint = document.getElementById('azureEndpoint').value.trim();
+            config.azureKey = document.getElementById('azureKey').value.trim();
+            config.sheetsUrl = document.getElementById('sheetsUrl').value.trim();
+            localStorage.setItem('receiptScannerConfig', JSON.stringify(config));
+            updateConfigStatus();
+        }
+
+        // Update config status badge
+        function updateConfigStatus() {
+            const statusDiv = document.getElementById('configStatus');
+            const isConfigured = config.azureEndpoint && config.azureKey && config.sheetsUrl;
+
+            if (isConfigured) {
+                statusDiv.innerHTML = '<span class="status-badge ready"> Configured</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="status-badge not-ready">� Please complete configuration</span>';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type}`;
+            alertBox.style.display = 'block';
+
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Setup upload area
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Config inputs - save on change
+        document.getElementById('azureEndpoint').addEventListener('blur', saveConfig);
+        document.getElementById('azureKey').addEventListener('blur', saveConfig);
+        document.getElementById('sheetsUrl').addEventListener('blur', saveConfig);
+
+        // Handle file upload
+        async function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('Please upload an image file', 'error');
+                return;
+            }
+
+            // Check configuration
+            if (!config.azureEndpoint || !config.azureKey) {
+                showAlert('Please configure Azure credentials first', 'error');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Process with Azure
+            await processWithAzure(file);
+        }
+
+        // Process receipt with Azure Form Recognizer
+        async function processWithAzure(file) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+
+            try {
+                // Convert file to ArrayBuffer
+                const arrayBuffer = await file.arrayBuffer();
+
+                // Submit to Azure
+                const analyzeUrl = `${config.azureEndpoint}/formrecognizer/documentModels/prebuilt-receipt:analyze?api-version=2023-07-31`;
+
+                const response = await fetch(analyzeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/octet-stream',
+                        'Ocp-Apim-Subscription-Key': config.azureKey
+                    },
+                    body: arrayBuffer
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Azure API error: ${response.status} - ${errorText}`);
+                }
+
+                // Get operation location for polling
+                const operationLocation = response.headers.get('Operation-Location');
+                if (!operationLocation) {
+                    throw new Error('No operation location returned from Azure');
+                }
+
+                // Poll for results
+                const result = await pollForResult(operationLocation);
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Error processing receipt:', error);
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Poll Azure for analysis result
+        async function pollForResult(operationLocation, maxAttempts = 30) {
+            for (let i = 0; i < maxAttempts; i++) {
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+                const response = await fetch(operationLocation, {
+                    headers: {
+                        'Ocp-Apim-Subscription-Key': config.azureKey
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'succeeded') {
+                    return data.analyzeResult;
+                } else if (data.status === 'failed') {
+                    throw new Error('Azure analysis failed');
+                }
+            }
+
+            throw new Error('Timeout waiting for Azure analysis');
+        }
+
+        // Display extracted results
+        function displayResults(analyzeResult) {
+            const doc = analyzeResult.documents?.[0];
+            if (!doc) {
+                showAlert('No receipt data found in image', 'error');
+                return;
+            }
+
+            const fields = doc.fields || {};
+
+            // Extract data
+            const receiptData = {
+                merchantName: fields.MerchantName?.content || 'Unknown',
+                date: fields.TransactionDate?.content || '',
+                time: fields.TransactionTime?.content || '',
+                total: fields.Total?.content || '0.00',
+                tax: fields.TotalTax?.content || '0.00',
+                items: [],
+                currency: fields.Total?.valueCurrency || 'USD'
+            };
+
+            // Extract items
+            if (fields.Items?.valueArray) {
+                receiptData.items = fields.Items.valueArray.map(item => {
+                    const itemFields = item.valueObject || {};
+                    return {
+                        description: itemFields.Description?.content || 'Unknown item',
+                        price: itemFields.TotalPrice?.content || '0.00',
+                        quantity: itemFields.Quantity?.content || '1'
+                    };
+                });
+            }
+
+            currentReceiptData = receiptData;
+
+            // Display in UI
+            document.getElementById('merchantName').textContent = receiptData.merchantName;
+            document.getElementById('transactionDate').textContent = receiptData.date || 'Not found';
+            document.getElementById('transactionTime').textContent = receiptData.time || 'Not found';
+            document.getElementById('total').textContent = `${receiptData.currency} ${receiptData.total}`;
+            document.getElementById('tax').textContent = `${receiptData.currency} ${receiptData.tax}`;
+
+            // Display items
+            const itemsList = document.getElementById('itemsList');
+            if (receiptData.items.length > 0) {
+                itemsList.innerHTML = receiptData.items.map(item => `
+                    <div class="item-row">
+                        <span>${item.description} (x${item.quantity})</span>
+                        <span><strong>${receiptData.currency} ${item.price}</strong></span>
+                    </div>
+                `).join('');
+            } else {
+                itemsList.innerHTML = '<p>No items found</p>';
+            }
+
+            document.getElementById('resultsContainer').style.display = 'block';
+            showAlert('Receipt processed successfully!', 'success');
+        }
+
+        // Save to Google Sheets
+        document.getElementById('saveToSheets').addEventListener('click', async () => {
+            if (!config.sheetsUrl) {
+                showAlert('Please configure Google Apps Script URL first', 'error');
+                return;
+            }
+
+            if (!currentReceiptData) {
+                showAlert('No receipt data to save', 'error');
+                return;
+            }
+
+            try {
+                const button = document.getElementById('saveToSheets');
+                button.disabled = true;
+                button.textContent = 'Saving...';
+
+                const response = await fetch(config.sheetsUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Required for Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentReceiptData)
+                });
+
+                // Note: no-cors mode doesn't allow reading response, so we assume success
+                showAlert('Saved to Google Sheets!', 'success');
+
+                button.disabled = false;
+                button.textContent = '=� Save to Google Sheets';
+
+            } catch (error) {
+                console.error('Error saving to sheets:', error);
+                showAlert(`Error saving: ${error.message}`, 'error');
+
+                const button = document.getElementById('saveToSheets');
+                button.disabled = false;
+                button.textContent = '=� Save to Google Sheets';
+            }
+        });
+
+        // Initialize
+        loadConfig();
+    </script>
+</body>
+</html>
