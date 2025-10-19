@@ -753,8 +753,9 @@
                         let width = img.width;
                         let height = img.height;
 
-                        // Scale down if too large (max 4096px on longest side)
-                        const maxDimension = 4096;
+                        // Scale down more aggressively if file is very large
+                        const maxDimension = file.size > 8 * 1024 * 1024 ? 2048 : 3072;
+
                         if (width > maxDimension || height > maxDimension) {
                             if (width > height) {
                                 height = (height / width) * maxDimension;
@@ -771,18 +772,23 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        // Try different quality levels to get under size limit
-                        let quality = 0.85;
-                        canvas.toBlob((blob) => {
-                            if (blob.size / 1024 > maxSizeKB && quality > 0.5) {
-                                quality -= 0.1;
-                                canvas.toBlob((blob2) => {
-                                    resolve(new File([blob2], file.name, { type: 'image/jpeg' }));
-                                }, 'image/jpeg', quality);
-                            } else {
-                                resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-                            }
-                        }, 'image/jpeg', quality);
+                        // Iteratively reduce quality until under size limit
+                        function tryCompress(quality) {
+                            canvas.toBlob((blob) => {
+                                console.log(`Trying quality ${quality}: ${(blob.size / 1024).toFixed(0)}KB`);
+
+                                if (blob.size / 1024 <= maxSizeKB || quality <= 0.3) {
+                                    // Success or gave up - return what we have
+                                    resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                                } else {
+                                    // Try lower quality
+                                    tryCompress(quality - 0.1);
+                                }
+                            }, 'image/jpeg', quality);
+                        }
+
+                        // Start with quality 0.8
+                        tryCompress(0.8);
                     };
                     img.src = e.target.result;
                 };
@@ -810,11 +816,19 @@
 
             // Compress image if needed
             const originalSize = (file.size / 1024).toFixed(0);
+            console.log(`Original image size: ${originalSize}KB`);
+
             file = await compressImage(file);
             const compressedSize = (file.size / 1024).toFixed(0);
+            console.log(`Compressed image size: ${compressedSize}KB`);
 
             if (originalSize != compressedSize) {
-                console.log(`Compressed image from ${originalSize}KB to ${compressedSize}KB`);
+                showAlert(`Compressed image from ${originalSize}KB to ${compressedSize}KB`, 'info');
+            }
+
+            // Final check - warn if still too large
+            if (file.size > 4 * 1024 * 1024) {
+                showAlert('Warning: Image is still over 4MB, may fail', 'error');
             }
 
             // Show preview
