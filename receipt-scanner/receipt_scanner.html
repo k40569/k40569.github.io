@@ -737,6 +737,59 @@
         document.getElementById('sheetsUrl').addEventListener('blur', saveConfig);
         document.getElementById('sheetUrl').addEventListener('blur', saveConfig);
 
+        // Compress image if needed (Azure has 4MB limit)
+        async function compressImage(file, maxSizeKB = 3500) {
+            // If file is already small enough, return as-is
+            if (file.size / 1024 <= maxSizeKB) {
+                return file;
+            }
+
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Scale down if too large (max 4096px on longest side)
+                        const maxDimension = 4096;
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = (height / width) * maxDimension;
+                                width = maxDimension;
+                            } else {
+                                width = (width / height) * maxDimension;
+                                height = maxDimension;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Try different quality levels to get under size limit
+                        let quality = 0.85;
+                        canvas.toBlob((blob) => {
+                            if (blob.size / 1024 > maxSizeKB && quality > 0.5) {
+                                quality -= 0.1;
+                                canvas.toBlob((blob2) => {
+                                    resolve(new File([blob2], file.name, { type: 'image/jpeg' }));
+                                }, 'image/jpeg', quality);
+                            } else {
+                                resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         // Handle file upload
         async function handleFile(file) {
             if (!file.type.startsWith('image/')) {
@@ -753,6 +806,15 @@
                     configToggle.textContent = 'Hide';
                 }
                 return;
+            }
+
+            // Compress image if needed
+            const originalSize = (file.size / 1024).toFixed(0);
+            file = await compressImage(file);
+            const compressedSize = (file.size / 1024).toFixed(0);
+
+            if (originalSize != compressedSize) {
+                console.log(`Compressed image from ${originalSize}KB to ${compressedSize}KB`);
             }
 
             // Show preview
