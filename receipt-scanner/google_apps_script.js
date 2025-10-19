@@ -29,6 +29,9 @@ function doPost(e) {
     // Parse the incoming JSON data
     const data = JSON.parse(e.postData.contents);
 
+    // Log incoming data for debugging
+    console.log('Incoming receipt data: ' + JSON.stringify(data));
+
     // Get the active spreadsheet
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
@@ -43,11 +46,13 @@ function doPost(e) {
         'Tax',
         'Item Count',
         'Items (Description x Qty @ Price)',
-        'Timestamp'
+        'Timestamp',
+        'Raw Date',
+        'Raw Total'
       ]);
 
       // Format header row
-      const headerRange = sheet.getRange(1, 1, 1, 9);
+      const headerRange = sheet.getRange(1, 1, 1, 11);
       headerRange.setFontWeight('bold');
       headerRange.setBackground('#667eea');
       headerRange.setFontColor('#ffffff');
@@ -55,8 +60,12 @@ function doPost(e) {
 
     // Check for duplicates (unless force flag is set)
     if (!data.force) {
+      console.log('Checking for duplicates...');
       const duplicate = findDuplicate(sheet, data);
       if (duplicate) {
+        console.log('Duplicate found at row ' + duplicate.row);
+        // Write debug info to a "Debug" sheet
+        writeDebugLog(data, duplicate, 'DUPLICATE FOUND');
         // Return duplicate warning with CORS headers
         return createCorsResponse({
           isDuplicate: true,
@@ -65,6 +74,10 @@ function doPost(e) {
           message: `Duplicate found: ${duplicate.data.merchant} on ${duplicate.data.date} for ${duplicate.data.currency} ${duplicate.data.total}`
         });
       }
+      console.log('No duplicate found');
+      writeDebugLog(data, null, 'NO DUPLICATE');
+    } else {
+      console.log('Force flag set, skipping duplicate check');
     }
 
     // Format items as a string
@@ -77,7 +90,7 @@ function doPost(e) {
       itemsText = 'No items';
     }
 
-    // Prepare row data
+    // Prepare row data - use setValues instead of appendRow to force text format
     const rowData = [
       data.date || '',
       data.time || '',
@@ -87,14 +100,20 @@ function doPost(e) {
       data.tax || '0.00',
       data.items ? data.items.length : 0,
       itemsText,
-      new Date().toISOString()
+      new Date().toISOString(),
+      data.date || '',  // Raw date string for duplicate detection
+      data.total || ''  // Raw total string for duplicate detection
     ];
 
     // Append the new row
-    sheet.appendRow(rowData);
+    const newRow = sheet.getLastRow() + 1;
+    sheet.getRange(newRow, 1, 1, 11).setValues([rowData]);
+
+    // Force columns J and K to be text by setting number format
+    sheet.getRange(newRow, 10, 1, 2).setNumberFormat('@STRING@');
 
     // Auto-resize columns for better readability
-    sheet.autoResizeColumns(1, 9);
+    sheet.autoResizeColumns(1, 11);
 
     // Return success response with CORS headers
     return createCorsResponse({
@@ -125,34 +144,35 @@ function findDuplicate(sheet, newReceipt) {
   }
 
   // Get all existing data (skip header row)
-  // Columns: Date, Time, Merchant, Total, Currency, Tax, ItemCount, Items, Timestamp
-  const data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+  // Columns: Date, Time, Merchant, Total, Currency, Tax, ItemCount, Items, Timestamp, RawDate, RawTotal
+  const data = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
 
   // Check each row for duplicates
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
+
     const rowData = {
-      date: row[0],
-      time: row[1],
       merchant: row[2],
-      total: row[3].toString(),
-      currency: row[4],
-      tax: row[5],
-      itemCount: row[6],
-      items: row[7],
-      timestamp: row[8]
+      rawDate: row[9] || row[0],  // Use raw date if available, fallback to parsed date
+      rawTotal: row[10] || row[3],  // Use raw total if available, fallback to parsed total
     };
 
-    // Duplicate detection logic (same as mobile app):
-    // Match if: same merchant + same date + same total
-    const merchantMatch = rowData.merchant.toLowerCase() === (newReceipt.merchantName || '').toLowerCase();
-    const dateMatch = rowData.date === newReceipt.date;
-    const totalMatch = parseFloat(rowData.total) === parseFloat(newReceipt.total);
+    // Simple string comparison - match if: same merchant + same raw date + same raw total
+    const merchantMatch = (rowData.merchant || '').toLowerCase().trim() === (newReceipt.merchantName || '').toLowerCase().trim();
+    const dateMatch = (rowData.rawDate || '').toString().trim() === (newReceipt.date || '').toString().trim();
+    const totalMatch = (rowData.rawTotal || '').toString().trim() === (newReceipt.total || '').toString().trim();
+
+    console.log(`Row ${i+2}: merchant=${merchantMatch} ('${rowData.merchant}' vs '${newReceipt.merchantName}'), date=${dateMatch} ('${rowData.rawDate}' vs '${newReceipt.date}'), total=${totalMatch} ('${rowData.rawTotal}' vs '${newReceipt.total}')`);
 
     if (merchantMatch && dateMatch && totalMatch) {
+      console.log('Match found!');
       return {
         row: i + 2, // +2 because: +1 for header, +1 for 1-based indexing
-        data: rowData
+        data: {
+          merchant: rowData.merchant,
+          date: rowData.rawDate,
+          total: rowData.rawTotal
+        }
       };
     }
   }
@@ -192,7 +212,7 @@ function getReceiptStats() {
   const lastRow = sheet.getLastRow();
 
   if (lastRow <= 1) {
-    Logger.log('No receipts found');
+    console.log('No receipts found');
     return;
   }
 
@@ -207,6 +227,107 @@ function getReceiptStats() {
     }
   });
 
-  Logger.log(`Total receipts: ${lastRow - 1}`);
-  Logger.log(`Total amount: ${sum.toFixed(2)}`);
+  console.log(`Total receipts: ${lastRow - 1}`);
+  console.log(`Total amount: ${sum.toFixed(2)}`);
+}
+
+/**
+ * Migration function: Fill Raw Date and Raw Total columns for existing rows
+ * Run this once from the Apps Script editor: Run > Run function > migrateOldRows
+ */
+function migrateOldRows() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow <= 1) {
+    console.log('No data to migrate');
+    return;
+  }
+
+  // First, set columns J and K to text format for all rows
+  if (lastRow > 1) {
+    sheet.getRange(2, 10, lastRow - 1, 2).setNumberFormat('@STRING@');
+  }
+
+  // Get all data
+  const data = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+
+  let migratedCount = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    const rowNumber = i + 2;
+
+    // Always overwrite to ensure proper text format
+    // Copy Date (column A) to Raw Date (column J)
+    if (row[0]) {
+      sheet.getRange(rowNumber, 10).setValue(row[0].toString());
+    }
+
+    // Copy Total (column D) to Raw Total (column K)
+    if (row[3]) {
+      sheet.getRange(rowNumber, 11).setValue(row[3].toString());
+    }
+
+    migratedCount++;
+  }
+
+  console.log(`Migrated ${migratedCount} rows`);
+  SpreadsheetApp.getUi().alert(`Migration complete! Updated ${migratedCount} rows.`);
+}
+
+/**
+ * Write debug information to a "Debug" sheet
+ */
+function writeDebugLog(newReceipt, duplicate, result) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let debugSheet = ss.getSheetByName('Debug');
+
+    // Create Debug sheet if it doesn't exist
+    if (!debugSheet) {
+      debugSheet = ss.insertSheet('Debug');
+      debugSheet.appendRow(['Timestamp', 'Result', 'Inc Merchant', 'Inc Date', 'Inc Total', 'Sheet Row 2 Col J (RawDate)', 'Sheet Row 2 Col K (RawTotal)', 'Sheet Row 2 Col C (Merchant)']);
+      debugSheet.getRange(1, 1, 1, 8).setFontWeight('bold').setBackground('#ff9800').setFontColor('#ffffff');
+    }
+
+    // Check if header row is missing (if first row doesn't have "Timestamp")
+    if (debugSheet.getLastRow() === 0 || debugSheet.getRange(1, 1).getValue() !== 'Timestamp') {
+      debugSheet.insertRowBefore(1);
+      debugSheet.getRange(1, 1, 1, 8).setValues([['Timestamp', 'Result', 'Inc Merchant', 'Inc Date', 'Inc Total', 'Sheet Row 2 Col J (RawDate)', 'Sheet Row 2 Col K (RawTotal)', 'Sheet Row 2 Col C (Merchant)']]);
+      debugSheet.getRange(1, 1, 1, 8).setFontWeight('bold').setBackground('#ff9800').setFontColor('#ffffff');
+    }
+
+    // Get row count from main sheet for debugging
+    const mainSheet = ss.getActiveSheet();
+    const rowCount = mainSheet.getLastRow();
+
+    // Get the actual raw values from row 2 that we're comparing against
+    let sheetRawDate = '';
+    let sheetRawTotal = '';
+    let sheetMerchant = '';
+
+    if (mainSheet.getLastRow() > 1) {
+      const row2 = mainSheet.getRange(2, 1, 1, 11).getValues()[0];
+      sheetMerchant = row2[2] || '';  // Column C
+      sheetRawDate = row2[9] || '';   // Column J
+      sheetRawTotal = row2[10] || ''; // Column K
+    }
+
+    // Write debug row showing exactly what we're comparing
+    debugSheet.appendRow([
+      new Date().toISOString(),
+      result,
+      newReceipt.merchantName || '',
+      newReceipt.date || '',
+      newReceipt.total || '',
+      sheetRawDate || '(empty)',
+      sheetRawTotal || '(empty)',
+      sheetMerchant || '(empty)'
+    ]);
+
+    debugSheet.autoResizeColumns(1, 8);
+  } catch (error) {
+    console.log('Debug logging failed: ' + error);
+  }
 }
