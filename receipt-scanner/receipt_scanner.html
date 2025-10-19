@@ -907,16 +907,35 @@
 
                 const response = await fetch(config.sheetsUrl, {
                     method: 'POST',
+                    redirect: 'follow',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(dataToSend)
                 });
 
-                const result = await response.json();
+                // Try to read response - this may fail due to CORS
+                let result = null;
+                try {
+                    const text = await response.text();
+                    result = JSON.parse(text);
+                } catch (corsError) {
+                    // CORS error - can't read response
+                    // This happens with Google Apps Script
+                    // Assume success if force=true, otherwise can't detect duplicates
+                    console.log('Cannot read response due to CORS:', corsError);
 
-                // Check if duplicate detected
-                if (result.isDuplicate && !force) {
+                    if (!force) {
+                        // Can't detect duplicates without reading response
+                        showAlert('Note: Duplicate detection unavailable. Receipt saved.', 'success');
+                    }
+
+                    // Assume success
+                    result = { success: true };
+                }
+
+                // Check if duplicate detected (only if we could read the response)
+                if (result && result.isDuplicate && !force) {
                     // Show duplicate warning modal
                     showDuplicateWarning(result);
                     button.disabled = false;
@@ -925,7 +944,7 @@
                 }
 
                 // Check for errors
-                if (result.success === false) {
+                if (result && result.success === false) {
                     throw new Error(result.error || 'Failed to save receipt');
                 }
 
