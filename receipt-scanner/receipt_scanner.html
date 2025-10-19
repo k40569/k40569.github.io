@@ -887,6 +887,10 @@
 
         // Save to Google Sheets (with duplicate detection)
         async function saveToSheets(force = false) {
+            console.log('saveToSheets called, force:', force);
+            console.log('config.sheetsUrl:', config.sheetsUrl);
+            console.log('currentReceiptData:', currentReceiptData);
+
             if (!config.sheetsUrl) {
                 showAlert('Please configure Google Apps Script URL first', 'error');
                 return;
@@ -1018,9 +1022,15 @@
         });
 
         // Save button click handler
-        document.getElementById('saveToSheets').addEventListener('click', () => {
-            saveToSheets(false);
-        });
+        const saveButton = document.getElementById('saveToSheets');
+        if (saveButton) {
+            saveButton.addEventListener('click', () => {
+                console.log('Save button clicked');
+                saveToSheets(false);
+            });
+        } else {
+            console.error('Save button not found!');
+        }
 
         // Initialize
         loadConfig();
