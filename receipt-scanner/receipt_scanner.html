@@ -353,6 +353,103 @@
                 padding: 15px;
             }
         }
+
+        /* Duplicate Warning Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-icon {
+            font-size: 32px;
+            margin-right: 12px;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            color: #333;
+            margin: 0;
+        }
+
+        .modal-body {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-details {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .modal-details strong {
+            color: #333;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-button.cancel {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-button.cancel:hover {
+            background: #dee2e6;
+        }
+
+        .modal-button.confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-button.confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -788,8 +885,8 @@
             showAlert('Receipt processed successfully!', 'success');
         }
 
-        // Save to Google Sheets
-        document.getElementById('saveToSheets').addEventListener('click', async () => {
+        // Save to Google Sheets (with duplicate detection)
+        async function saveToSheets(force = false) {
             if (!config.sheetsUrl) {
                 showAlert('Please configure Google Apps Script URL first', 'error');
                 return;
@@ -805,14 +902,32 @@
                 button.disabled = true;
                 button.textContent = 'Saving...';
 
+                // Add force flag if saving anyway
+                const dataToSend = force ? { ...currentReceiptData, force: true } : currentReceiptData;
+
                 const response = await fetch(config.sheetsUrl, {
                     method: 'POST',
-                    mode: 'no-cors', // Required for Google Apps Script
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(currentReceiptData)
+                    body: JSON.stringify(dataToSend)
                 });
+
+                const result = await response.json();
+
+                // Check if duplicate detected
+                if (result.isDuplicate && !force) {
+                    // Show duplicate warning modal
+                    showDuplicateWarning(result);
+                    button.disabled = false;
+                    button.textContent = 'Save to Google Sheets';
+                    return;
+                }
+
+                // Check for errors
+                if (result.success === false) {
+                    throw new Error(result.error || 'Failed to save receipt');
+                }
 
                 // Success - change button appearance
                 button.className = 'button success';
@@ -843,10 +958,72 @@
                 button.className = 'button';
                 button.textContent = 'Save to Google Sheets';
             }
+        }
+
+        // Show duplicate warning modal
+        function showDuplicateWarning(duplicateInfo) {
+            const modal = document.getElementById('duplicateModal');
+            const details = document.getElementById('duplicateDetails');
+
+            const existingReceipt = duplicateInfo.existingReceipt;
+            details.innerHTML = `
+                <strong>Row ${duplicateInfo.row}:</strong><br>
+                ${existingReceipt.merchant} on ${existingReceipt.date}<br>
+                ${existingReceipt.currency} ${existingReceipt.total}
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // Hide duplicate modal
+        function hideDuplicateModal() {
+            const modal = document.getElementById('duplicateModal');
+            modal.classList.remove('active');
+        }
+
+        // Duplicate modal event listeners
+        document.getElementById('duplicateCancel').addEventListener('click', () => {
+            hideDuplicateModal();
+        });
+
+        document.getElementById('duplicateSaveAnyway').addEventListener('click', async () => {
+            hideDuplicateModal();
+            await saveToSheets(true); // Save with force=true
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('duplicateModal').addEventListener('click', (e) => {
+            if (e.target.id === 'duplicateModal') {
+                hideDuplicateModal();
+            }
+        });
+
+        // Save button click handler
+        document.getElementById('saveToSheets').addEventListener('click', () => {
+            saveToSheets(false);
         });
 
         // Initialize
         loadConfig();
     </script>
+
+    <!-- Duplicate Warning Modal -->
+    <div class="modal-overlay" id="duplicateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">!</div>
+                <h3>Possible Duplicate Receipt</h3>
+            </div>
+            <div class="modal-body">
+                <p>This receipt looks very similar to one already in your sheet:</p>
+                <div class="modal-details" id="duplicateDetails"></div>
+                <p>Do you want to save it anyway?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button cancel" id="duplicateCancel">Cancel</button>
+                <button class="modal-button confirm" id="duplicateSaveAnyway">Save Anyway</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

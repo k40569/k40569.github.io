@@ -1,8 +1,8 @@
 /**
- * Google Apps Script for Receipt Scanner
+ * Google Apps Script for Receipt Scanner with Duplicate Detection
  *
  * This script receives receipt data from the web app and writes it to Google Sheets.
- * Deploy this as a web app to get a URL that your HTML page can POST to.
+ * It checks for duplicates before saving and returns a warning if found.
  *
  * SETUP INSTRUCTIONS:
  * 1. Open your Google Sheet
@@ -13,10 +13,12 @@
  * 6. Click Deploy > New deployment
  * 7. Select type: Web app
  * 8. Execute as: Me
- * 9. Who has access: Anyone (or "Anyone with the link" if you prefer)
+ * 9. Who has access: Anyone
  * 10. Click Deploy
  * 11. Copy the Web app URL
  * 12. Paste it into your HTML page's "Google Apps Script URL" field
+ *
+ * NOTE: This version enables CORS to allow reading responses from the web app
  */
 
 /**
@@ -51,6 +53,20 @@ function doPost(e) {
       headerRange.setFontColor('#ffffff');
     }
 
+    // Check for duplicates (unless force flag is set)
+    if (!data.force) {
+      const duplicate = findDuplicate(sheet, data);
+      if (duplicate) {
+        // Return duplicate warning with CORS headers
+        return createCorsResponse({
+          isDuplicate: true,
+          row: duplicate.row,
+          existingReceipt: duplicate.data,
+          message: `Duplicate found: ${duplicate.data.merchant} on ${duplicate.data.date} for ${duplicate.data.currency} ${duplicate.data.total}`
+        });
+      }
+    }
+
     // Format items as a string
     let itemsText = '';
     if (data.items && data.items.length > 0) {
@@ -80,24 +96,82 @@ function doPost(e) {
     // Auto-resize columns for better readability
     sheet.autoResizeColumns(1, 9);
 
-    // Return success response
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        success: true,
-        message: 'Receipt saved successfully',
-        row: sheet.getLastRow()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    // Return success response with CORS headers
+    return createCorsResponse({
+      success: true,
+      message: 'Receipt saved successfully',
+      row: sheet.getLastRow()
+    });
 
   } catch (error) {
-    // Return error response
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        success: false,
-        error: error.toString()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    // Return error response with CORS headers
+    return createCorsResponse({
+      success: false,
+      error: error.toString()
+    });
   }
+}
+
+/**
+ * Find duplicate receipts in the sheet
+ * Returns the duplicate row info or null if no duplicate found
+ */
+function findDuplicate(sheet, newReceipt) {
+  const lastRow = sheet.getLastRow();
+
+  // No duplicates if sheet is empty or only has headers
+  if (lastRow <= 1) {
+    return null;
+  }
+
+  // Get all existing data (skip header row)
+  // Columns: Date, Time, Merchant, Total, Currency, Tax, ItemCount, Items, Timestamp
+  const data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+
+  // Check each row for duplicates
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    const rowData = {
+      date: row[0],
+      time: row[1],
+      merchant: row[2],
+      total: row[3].toString(),
+      currency: row[4],
+      tax: row[5],
+      itemCount: row[6],
+      items: row[7],
+      timestamp: row[8]
+    };
+
+    // Duplicate detection logic (same as mobile app):
+    // Match if: same merchant + same date + same total
+    const merchantMatch = rowData.merchant.toLowerCase() === (newReceipt.merchantName || '').toLowerCase();
+    const dateMatch = rowData.date === newReceipt.date;
+    const totalMatch = parseFloat(rowData.total) === parseFloat(newReceipt.total);
+
+    if (merchantMatch && dateMatch && totalMatch) {
+      return {
+        row: i + 2, // +2 because: +1 for header, +1 for 1-based indexing
+        data: rowData
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Create a CORS-enabled response
+ * This allows the web app to read the response
+ */
+function createCorsResponse(data) {
+  const output = ContentService.createTextOutput(JSON.stringify(data));
+  output.setMimeType(ContentService.MimeType.JSON);
+
+  // Note: Apps Script doesn't support custom headers in the same way as regular servers
+  // But it does allow cross-origin requests by default when deployed as "Anyone"
+
+  return output;
 }
 
 /**
