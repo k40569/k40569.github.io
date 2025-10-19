@@ -1021,36 +1021,41 @@
             modal.classList.remove('active');
         }
 
-        // Duplicate modal event listeners
-        document.getElementById('duplicateCancel').addEventListener('click', () => {
-            hideDuplicateModal();
-        });
+        // Wait for DOM to be fully loaded before attaching event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing event listeners');
 
-        document.getElementById('duplicateSaveAnyway').addEventListener('click', async () => {
-            hideDuplicateModal();
-            await saveToSheets(true); // Save with force=true
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('duplicateModal').addEventListener('click', (e) => {
-            if (e.target.id === 'duplicateModal') {
+            // Duplicate modal event listeners
+            document.getElementById('duplicateCancel').addEventListener('click', () => {
                 hideDuplicateModal();
-            }
-        });
-
-        // Save button click handler
-        const saveButton = document.getElementById('saveToSheets');
-        if (saveButton) {
-            saveButton.addEventListener('click', () => {
-                console.log('Save button clicked');
-                saveToSheets(false);
             });
-        } else {
-            console.error('Save button not found!');
-        }
 
-        // Initialize
-        loadConfig();
+            document.getElementById('duplicateSaveAnyway').addEventListener('click', async () => {
+                hideDuplicateModal();
+                await saveToSheets(true); // Save with force=true
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('duplicateModal').addEventListener('click', (e) => {
+                if (e.target.id === 'duplicateModal') {
+                    hideDuplicateModal();
+                }
+            });
+
+            // Save button click handler
+            const saveButton = document.getElementById('saveToSheets');
+            if (saveButton) {
+                saveButton.addEventListener('click', () => {
+                    console.log('Save button clicked');
+                    saveToSheets(false);
+                });
+            } else {
+                console.error('Save button not found!');
+            }
+
+            // Initialize
+            loadConfig();
+        });
     </script>
 
     <!-- Duplicate Warning Modal -->
