@@ -397,6 +397,14 @@
                         placeholder="https://script.google.com/macros/s/YOUR-SCRIPT-ID/exec"
                         value="">
                     <small>Deploy the Google Apps Script and paste the URL here</small>
+
+                    <label for="sheetUrl">Google Sheet URL (optional):</label>
+                    <input
+                        type="text"
+                        id="sheetUrl"
+                        placeholder="https://docs.google.com/spreadsheets/d/YOUR-SHEET-ID/edit"
+                        value="">
+                    <small>Paste your Google Sheet URL to enable the "Open Sheet" link</small>
                 </div>
             </div>
 
@@ -467,23 +475,17 @@
         let config = {
             azureEndpoint: '',
             azureKey: '',
-            sheetsUrl: ''
+            sheetsUrl: '',
+            sheetUrl: ''
         };
 
         let currentReceiptData = null;
-        let googleSheetId = null;
 
-        // Extract Google Sheet ID from Apps Script URL
-        function extractSheetId(appsScriptUrl) {
-            // Try to extract from the Apps Script URL or from stored sheetId
-            const stored = localStorage.getItem('googleSheetId');
-            if (stored) return stored;
-
-            // If user pastes a direct sheet URL instead
-            const match = appsScriptUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-            if (match) return match[1];
-
-            return null;
+        // Extract Google Sheet ID from Sheet URL
+        function extractSheetId(sheetUrl) {
+            if (!sheetUrl) return null;
+            const match = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
         }
 
         // Get user's default currency from browser locale
@@ -543,9 +545,9 @@
                 document.getElementById('azureEndpoint').value = config.azureEndpoint || '';
                 document.getElementById('azureKey').value = config.azureKey || '';
                 document.getElementById('sheetsUrl').value = config.sheetsUrl || '';
+                document.getElementById('sheetUrl').value = config.sheetUrl || '';
             }
 
-            googleSheetId = localStorage.getItem('googleSheetId');
             updateConfigStatus();
         }
 
@@ -554,13 +556,8 @@
             config.azureEndpoint = document.getElementById('azureEndpoint').value.trim();
             config.azureKey = document.getElementById('azureKey').value.trim();
             config.sheetsUrl = document.getElementById('sheetsUrl').value.trim();
+            config.sheetUrl = document.getElementById('sheetUrl').value.trim();
             localStorage.setItem('receiptScannerConfig', JSON.stringify(config));
-
-            // Try to extract sheet ID
-            googleSheetId = extractSheetId(config.sheetsUrl);
-            if (googleSheetId) {
-                localStorage.setItem('googleSheetId', googleSheetId);
-            }
 
             updateConfigStatus();
         }
@@ -624,6 +621,7 @@
         document.getElementById('azureEndpoint').addEventListener('blur', saveConfig);
         document.getElementById('azureKey').addEventListener('blur', saveConfig);
         document.getElementById('sheetsUrl').addEventListener('blur', saveConfig);
+        document.getElementById('sheetUrl').addEventListener('blur', saveConfig);
 
         // Handle file upload
         async function handleFile(file) {
@@ -821,11 +819,12 @@
                 button.textContent = '\u2713 Saved to Sheet!';
                 button.disabled = false;
 
-                // Show link to Google Sheet if we have the ID
-                if (googleSheetId) {
+                // Show link to Google Sheet if we have the URL
+                const sheetId = extractSheetId(config.sheetUrl);
+                if (sheetId) {
                     const sheetLinkEl = document.getElementById('sheetLink');
                     const sheetLinkUrl = document.getElementById('sheetLinkUrl');
-                    sheetLinkUrl.href = `https://docs.google.com/spreadsheets/d/${googleSheetId}`;
+                    sheetLinkUrl.href = `https://docs.google.com/spreadsheets/d/${sheetId}`;
                     sheetLinkEl.style.display = 'block';
                 }
 
