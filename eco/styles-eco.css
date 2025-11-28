@@ -1,0 +1,750 @@
+/* ECO Canada Theme */
+/* Based on ECO Canada Brand Guidelines 2025 */
+
+:root {
+    /* ECO Canada Primary Colors */
+    --eco-dark-green: #006F44;
+    --eco-light-green: #6CC24A;
+    --eco-dark-blue: #293549;
+    --eco-dark-grey: #2a2a2a;
+    --eco-gold: #91694e;
+
+    /* ECO Canada Secondary Colors */
+    --dark-teal: #003b44;
+    --light-teal: #15877d;
+    --light-grey: #e7e7e7;
+
+    /* Status Colors */
+    --status-practicing: #27ae60;
+    --status-non-practicing: #e67e22;
+    --status-suspended: #c0392b;
+    --status-emeritus: #aa6c39;
+
+    /* Brand Colors for this theme */
+    --brand-primary: var(--eco-dark-green);
+    --brand-secondary: var(--eco-light-green);
+    --brand-accent: var(--eco-gold);
+
+    /* Typography */
+    --font-primary: 'Open Sans', Arial, sans-serif;
+    --font-fallback: Arial, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Header with logos */
+.header {
+    background: white;
+    padding: 20px 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#logos-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.logo-container:hover,
+.logo-container:focus {
+    background: #f0f0f0;
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+.logo {
+    flex-shrink: 0;
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-eco {
+    height: 60px;
+}
+
+.logo-oac {
+    height: 50px;
+}
+
+/* Logo Tooltips */
+.logo-tooltip {
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: auto;
+    width: 150px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.logo-container.tooltip .tooltiptext {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -40px;
+    top: auto;
+    width: auto;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.brand-switcher {
+    margin-left: auto;
+}
+
+.brand-select {
+    padding: 8px 12px;
+    border: 2px solid var(--brand-primary);
+    border-radius: 4px;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.brand-select:hover,
+.brand-select:focus {
+    background: var(--brand-primary);
+    color: white;
+    outline: none;
+}
+
+/* Title Section */
+.title-section {
+    background: white;
+    padding: 30px 40px 20px;
+    border-bottom: 3px solid var(--brand-primary);
+}
+
+.title-section h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Description Area */
+.description-area {
+    background: white;
+    padding: 20px 40px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    line-height: 1.7;
+}
+
+.description-area p {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.description-area ul {
+    margin: 15px 0 15px 20px;
+}
+
+.description-area li {
+    margin-bottom: 8px;
+}
+
+.description-area a {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.description-area a:hover,
+.description-area a:focus {
+    text-decoration: underline;
+    color: var(--brand-secondary);
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    max-width: 1600px;
+    margin: 20px auto;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+/* Search Panel */
+.search-panel {
+    width: 320px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.search-section {
+    margin-bottom: 25px;
+}
+
+.search-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2c3e50;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: var(--font-primary);
+    transition: border-color 0.2s;
+}
+
+.search-input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(0, 111, 68, 0.1);
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.designation-group {
+    border: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.sub-label {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* ECO Canada designations appear first in ECO theme */
+#eco-designations {
+    order: 1;
+}
+
+#oac-designations {
+    order: 2;
+}
+
+/* ECO logo appears first in ECO theme */
+.logo-eco-container {
+    order: 1;
+}
+
+.logo-oac-container {
+    order: 2;
+}
+
+/* ECO specializations appear first in ECO theme */
+#ep-specializations-section {
+    order: 1;
+}
+
+#sbep-specializations-section {
+    order: 2;
+}
+
+#designations-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#specializations-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkbox-list {
+    list-style: none;
+}
+
+.checkbox-list li {
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-list input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--brand-primary);
+}
+
+.checkbox-list input[type="checkbox"]:focus {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+.checkbox-list label {
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.checkbox-list label:hover {
+    color: var(--brand-primary);
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 320px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px 10px;
+    position: absolute;
+    z-index: 1000;
+    left: 105%;
+    top: -5px;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.tooltip:hover .tooltiptext,
+.tooltip:focus-within .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.specializations-section {
+    margin-top: 20px;
+}
+
+.specialization-header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.show-all-btn {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 11px;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--font-primary);
+    transition: background 0.2s;
+}
+
+.show-all-btn:hover,
+.show-all-btn:focus {
+    background: var(--brand-secondary);
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+.specialization-list {
+    margin-top: 10px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out;
+}
+
+.specialization-list.active {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+.specialization-list .checkbox-list {
+    font-size: 13px;
+}
+
+.clear-filters-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--brand-primary);
+    color: var(--brand-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: var(--font-primary);
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+.clear-filters-btn:hover,
+.clear-filters-btn:focus {
+    background: var(--brand-primary);
+    color: white;
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+/* Results Panel */
+.results-panel {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.results-header {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--brand-primary);
+    color: #2c3e50;
+}
+
+.result-item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.result-row {
+    padding: 14px 10px;
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.result-row:hover,
+.result-row:focus {
+    background-color: #f8f9fa;
+    outline: 2px solid var(--brand-primary);
+    outline-offset: -2px;
+}
+
+.result-bullet {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+/* Hide bullet and name for additional certifications */
+.result-item-additional-cert .result-bullet {
+    visibility: hidden;
+}
+
+.result-item-additional-cert .result-name {
+    visibility: hidden;
+}
+
+.result-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 2.5fr 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+.result-name {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 15px;
+}
+
+.result-designation {
+    color: #666;
+    font-size: 14px;
+}
+
+.result-status {
+    font-size: 14px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.status-practicing {
+    color: var(--status-practicing);
+}
+
+.status-non-practicing {
+    color: var(--status-non-practicing);
+}
+
+.status-suspended {
+    color: var(--status-suspended);
+}
+
+.status-emeritus {
+    color: var(--status-emeritus);
+}
+
+/* Slide-down details */
+.result-details {
+    background: #f9f9f9;
+    border-top: 3px solid var(--brand-primary);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding: 0 20px;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.result-details.active {
+    max-height: 600px;
+    opacity: 1;
+    padding: 20px;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.detail-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-table tr:last-child {
+    border-bottom: none;
+}
+
+.detail-table td {
+    padding: 12px 15px;
+    font-size: 14px;
+}
+
+.detail-table td:first-child {
+    font-weight: 700;
+    color: #2c3e50;
+    width: 45%;
+    background: #f5f5f5;
+}
+
+.detail-table td:last-child {
+    color: #555;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    min-width: 40px;
+    transition: all 0.2s;
+}
+
+.page-btn.active {
+    background: var(--brand-primary);
+    color: white;
+    border-color: var(--brand-primary);
+}
+
+.page-btn:hover:not(.active),
+.page-btn:focus:not(.active) {
+    background: #f0f0f0;
+    border-color: var(--brand-primary);
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+.export-btn {
+    padding: 8px 18px;
+    background: white;
+    border: 2px solid var(--brand-primary);
+    color: var(--brand-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    margin-left: 15px;
+    transition: all 0.2s;
+}
+
+.export-btn:hover,
+.export-btn:focus {
+    background: var(--brand-primary);
+    color: white;
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .search-panel {
+        width: 100%;
+    }
+
+    .result-content {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .result-status {
+        text-align: left;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+    }
+
+    .title-section {
+        padding: 20px;
+    }
+
+    .title-section h1 {
+        font-size: 24px;
+    }
+
+    .description-area {
+        padding: 15px 20px;
+    }
+
+    .main-container {
+        padding: 0 10px;
+    }
+
+    .detail-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .detail-table td:first-child {
+        background: none;
+        font-weight: 700;
+        padding-bottom: 4px;
+    }
+
+    .detail-table td:last-child {
+        padding-top: 0;
+        padding-bottom: 12px;
+    }
+}
+
+/* Focus visible for better keyboard navigation */
+*:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .search-panel,
+    .pagination,
+    .brand-switcher {
+        display: none;
+    }
+
+    .result-details {
+        display: block !important;
+        page-break-inside: avoid;
+    }
+
+    body {
+        background: white;
+    }
+
+    .results-panel {
+        box-shadow: none;
+    }
+}
