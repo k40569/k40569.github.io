@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Directory - ECO Canada & Ocean Alliance Canada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles-eco.css" id="brand-styles">
+</head>
+<body>
+    <!-- Header with Logos -->
+    <header class="header">
+        <div id="logos-wrapper">
+            <div class="logo-container tooltip logo-eco-container" onclick="window.location.href='https://eco.ca'" role="button" tabindex="0" aria-label="ECO Canada">
+                <img src="ECO_Logo.svg" alt="ECO Canada Logo" class="logo logo-eco">
+                <span class="tooltiptext logo-tooltip">ECO Canada</span>
+            </div>
+            <div class="logo-container tooltip logo-oac-container" onclick="window.location.href='https://oceanalliancecanada.com'" role="button" tabindex="0" aria-label="Ocean Alliance Canada">
+                <img src="OAC_logo.png" alt="Ocean Alliance Canada Logo" class="logo logo-oac">
+                <span class="tooltiptext logo-tooltip">Ocean Alliance Canada</span>
+            </div>
+        </div>
+
+        <!-- Brand Switcher -->
+        <div class="brand-switcher">
+            <label for="brand-select" class="sr-only">Select Brand Theme</label>
+            <select id="brand-select" class="brand-select" aria-label="Select brand theme">
+                <option value="eco">ECO Canada Theme</option>
+                <option value="oac">Ocean Alliance Theme</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Title Section -->
+    <div class="title-section">
+        <h1>MEMBER DIRECTORY</h1>
+    </div>
+
+    <!-- Description Area -->
+    <div class="description-area">
+        <p><strong>Welcome to the Membership Directory.</strong></p>
+
+        <p>This directory serves as our active roster of members and is designed to help you search by designation, region, specialization, and more. Use this membership directory to find people, build connections, and get involved. Each member's profile includes key details to help you identify shared interests, projects, or locations.</p>
+
+        <p>This directory contains records for both Environmental Professional (EP®) members designated by ECO Canada and Sustainable Blue Economy Professionals (SBEP) designated by Ocean Alliance Canada.</p>
+
+        <ul>
+            <li><a href="https://oceanalliancecanada.com">Learn more about Ocean Alliance Canada and the SBEP designations</a></li>
+            <li><a href="https://eco.ca">Learn more about ECO Canada and the EP® designations</a></li>
+        </ul>
+
+        <p>The directory updates in real time, reflecting the most current information each member has listed in their account.</p>
+
+        <p>If you are looking to connect with a designated member, please e-mail us at <a href="mailto:EP@eco.ca">EP@eco.ca</a> and we'll put you in touch.</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Search Panel -->
+        <aside class="search-panel" role="complementary" aria-label="Search filters">
+            <div class="search-section">
+                <h2>Search</h2>
+                <label for="search-input" class="sr-only">Search by name or company</label>
+                <input type="text" id="search-input" class="search-input" placeholder="Search by name or company" aria-label="Search members">
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-label">Designations</h3>
+
+                <div id="designations-container">
+                <fieldset class="designation-group" id="eco-designations">
+                    <legend class="sub-label">ECO Canada Designations:</legend>
+                    <ul class="checkbox-list" role="group">
+                        <li>
+                            <input type="checkbox" name="designation" id="ep" value="EP">
+                            <label for="ep" class="tooltip">EP
+                                <span class="tooltiptext">Environmental Professional</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="ept" value="EPt">
+                            <label for="ept" class="tooltip">EPt
+                                <span class="tooltiptext">Environmental Professional in-training</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="epcea" value="EP(CEA)">
+                            <label for="epcea" class="tooltip">EP(CEA)
+                                <span class="tooltiptext">Compliance Environmental Auditor</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="epemsla" value="EP(EMSLA)">
+                            <label for="epemsla" class="tooltip">EP(EMSLA)
+                                <span class="tooltiptext">Environmental Management Systems Lead Auditor</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="epghg" value="EP(GHG)">
+                            <label for="epghg" class="tooltip">EP(GHG)
+                                <span class="tooltiptext">Environmental Professional for Greenhouse Gas Management</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="eptghg" value="EPt(GHG)">
+                            <label for="eptghg" class="tooltip">EPt(GHG)
+                                <span class="tooltiptext">Environmental Professional in-training for Greenhouse Gas Management</span>
+                            </label>
+                        </li>
+                    </ul>
+                </fieldset>
+
+                <fieldset class="designation-group" id="oac-designations">
+                    <legend class="sub-label">Ocean Alliance Canada Designations:</legend>
+                    <ul class="checkbox-list" role="group">
+                        <li>
+                            <input type="checkbox" name="designation" id="sbep" value="SBEP">
+                            <label for="sbep" class="tooltip">SBEP
+                                <span class="tooltiptext">Sustainable Blue Economy Professional</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="sbep-specialized" value="SBEP Specialized">
+                            <label for="sbep-specialized" class="tooltip">SBEP Specialized
+                                <span class="tooltiptext">Sustainable Blue Economy Professional with Specialization</span>
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="designation" id="sbept" value="SBEPt">
+                            <label for="sbept" class="tooltip">SBEPt
+                                <span class="tooltiptext">Sustainable Blue Economy Professional in-training</span>
+                            </label>
+                        </li>
+                    </ul>
+                </fieldset>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-label">Specializations</h3>
+
+                <div id="specializations-container">
+                <div class="specializations-section" id="ep-specializations-section">
+                    <p class="specialization-header">EP Specializations</p>
+                    <button class="show-all-btn" onclick="toggleSpecializations('ep-spec', this)" aria-expanded="false" aria-controls="ep-spec">SHOW ALL</button>
+                    <div id="ep-spec" class="specialization-list">
+                        <ul class="checkbox-list">
+                            <li><input type="checkbox" id="spec1" value="Air Quality"> <label for="spec1">Air Quality</label></li>
+                            <li><input type="checkbox" id="spec2" value="Water Quality"> <label for="spec2">Water Quality</label></li>
+                            <li><input type="checkbox" id="spec3" value="Site Assessment & Reclamation"> <label for="spec3">Site Assessment & Reclamation</label></li>
+                            <li><input type="checkbox" id="spec4" value="Waste Management"> <label for="spec4">Waste Management</label></li>
+                            <li><input type="checkbox" id="spec5" value="Health & Safety"> <label for="spec5">Health & Safety</label></li>
+                            <li><input type="checkbox" id="spec6" value="Energy"> <label for="spec6">Energy</label></li>
+                            <li><input type="checkbox" id="spec7" value="Fisheries & Wildlife"> <label for="spec7">Fisheries & Wildlife</label></li>
+                            <li><input type="checkbox" id="spec8" value="Natural Resource Management"> <label for="spec8">Natural Resource Management</label></li>
+                            <li><input type="checkbox" id="spec9" value="Education & Training"> <label for="spec9">Education & Training</label></li>
+                            <li><input type="checkbox" id="spec10" value="Research & Development"> <label for="spec10">Research & Development</label></li>
+                            <li><input type="checkbox" id="spec11" value="Policy & Legislation"> <label for="spec11">Policy & Legislation</label></li>
+                            <li><input type="checkbox" id="spec12" value="Communications & Public Awareness"> <label for="spec12">Communications & Public Awareness</label></li>
+                            <li><input type="checkbox" id="spec13" value="Environmental Manager"> <label for="spec13">Environmental Manager</label></li>
+                            <li><input type="checkbox" id="spec14" value="Sustainability"> <label for="spec14">Sustainability</label></li>
+                            <li><input type="checkbox" id="spec15" value="Impact Assessment Practitioner"> <label for="spec15">Impact Assessment Practitioner</label></li>
+                            <li><input type="checkbox" id="spec16" value="Impact Assessment Reviewer"> <label for="spec16">Impact Assessment Reviewer</label></li>
+                            <li><input type="checkbox" id="spec17" value="Environmental Management Systems"> <label for="spec17">Environmental Management Systems</label></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="specializations-section" id="sbep-specializations-section">
+                    <p class="specialization-header">SBEP Specializations</p>
+                    <button class="show-all-btn" onclick="toggleSpecializations('sbep-spec', this)" aria-expanded="false" aria-controls="sbep-spec">SHOW ALL</button>
+                    <div id="sbep-spec" class="specialization-list">
+                        <ul class="checkbox-list">
+                            <li><input type="checkbox" id="sspec1" value="Operations & Navigation"> <label for="sspec1">Operations & Navigation</label></li>
+                            <li><input type="checkbox" id="sspec2" value="Science & Ecosystem Management"> <label for="sspec2">Science & Ecosystem Management</label></li>
+                            <li><input type="checkbox" id="sspec3" value="Technology & Engineering"> <label for="sspec3">Technology & Engineering</label></li>
+                            <li><input type="checkbox" id="sspec4" value="Geoanalytics & Spatial Planning"> <label for="sspec4">Geoanalytics & Spatial Planning</label></li>
+                            <li><input type="checkbox" id="sspec5" value="Sustainable Infrastructure"> <label for="sspec5">Sustainable Infrastructure</label></li>
+                            <li><input type="checkbox" id="sspec6" value="Fisheries & Aquaculture"> <label for="sspec6">Fisheries & Aquaculture</label></li>
+                            <li><input type="checkbox" id="sspec7" value="Support & Leadership"> <label for="sspec7">Support & Leadership</label></li>
+                            <li><input type="checkbox" id="sspec8" value="Marine Coastal Tourism"> <label for="sspec8">Marine Coastal Tourism</label></li>
+                        </ul>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-label">Practicing Status</h3>
+                <ul class="checkbox-list">
+                    <li><input type="checkbox" name="status" id="practicing" value="Practicing"> <label for="practicing">Practicing</label></li>
+                    <li><input type="checkbox" name="status" id="non-practicing" value="Non-Practicing"> <label for="non-practicing">Non-Practicing</label></li>
+                    <li><input type="checkbox" name="status" id="emeritus" value="Emeritus"> <label for="emeritus">Emeritus</label></li>
+                    <li><input type="checkbox" name="status" id="suspended" value="Suspended"> <label for="suspended">Suspended</label></li>
+                </ul>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-label">Province / Territory</h3>
+                <ul class="checkbox-list">
+                    <li><input type="checkbox" name="province" id="intl" value="International"> <label for="intl">International</label></li>
+                    <li><input type="checkbox" name="province" id="ab" value="Alberta"> <label for="ab">Alberta</label></li>
+                    <li><input type="checkbox" name="province" id="bc" value="British Columbia"> <label for="bc">British Columbia</label></li>
+                    <li><input type="checkbox" name="province" id="mb" value="Manitoba"> <label for="mb">Manitoba</label></li>
+                    <li><input type="checkbox" name="province" id="nb" value="New Brunswick"> <label for="nb">New Brunswick</label></li>
+                    <li><input type="checkbox" name="province" id="nl" value="Newfoundland & Labrador"> <label for="nl">Newfoundland & Labrador</label></li>
+                    <li><input type="checkbox" name="province" id="nt" value="Northwest Territories"> <label for="nt">Northwest Territories</label></li>
+                    <li><input type="checkbox" name="province" id="ns" value="Nova Scotia"> <label for="ns">Nova Scotia</label></li>
+                    <li><input type="checkbox" name="province" id="nu" value="Nunavut"> <label for="nu">Nunavut</label></li>
+                    <li><input type="checkbox" name="province" id="on" value="Ontario"> <label for="on">Ontario</label></li>
+                    <li><input type="checkbox" name="province" id="pe" value="Prince Edward Island"> <label for="pe">Prince Edward Island</label></li>
+                    <li><input type="checkbox" name="province" id="qc" value="Quebec"> <label for="qc">Quebec</label></li>
+                    <li><input type="checkbox" name="province" id="sk" value="Saskatchewan"> <label for="sk">Saskatchewan</label></li>
+                    <li><input type="checkbox" name="province" id="yk" value="Yukon"> <label for="yk">Yukon</label></li>
+                </ul>
+            </div>
+
+            <button class="clear-filters-btn" onclick="clearAllFilters()">Clear All Filters</button>
+        </aside>
+
+        <!-- Results Panel -->
+        <main class="results-panel" role="main" aria-label="Search results">
+            <div class="results-header">
+                <span id="results-count">Results: 4500</span>
+            </div>
+
+            <div id="results-container">
+                <!-- Sample Result Items -->
+                <div class="result-item">
+                    <div class="result-row" onclick="toggleDetails('details1')" role="button" tabindex="0" aria-expanded="false" aria-controls="details1">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Abdulkadir Adam</div>
+                            <div class="result-designation">EP(EMSLA) Certified Since: 2005-10-11</div>
+                            <div class="result-status status-practicing">Practicing</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details1" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>2756</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Abdulkadir</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Adam</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>EP(EMSLA)</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Practicing</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2005-10-11</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Calgary</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Alberta</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Environmental Management Systems</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-row" onclick="toggleDetails('details2')" role="button" tabindex="0" aria-expanded="false" aria-controls="details2">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Aaron Amorosi</div>
+                            <div class="result-designation">EP(CEA) Certified Since: 2021-05-14</div>
+                            <div class="result-status status-practicing">Practicing</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details2" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>3833</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Aaron</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Amorosi</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>EP(CEA)</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Practicing</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2009-08-20</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Ottawa</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Ontario</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Environmental Management Systems, Impact Assessment</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-item-additional-cert">
+                    <div class="result-row" onclick="toggleDetails('details3')" role="button" tabindex="0" aria-expanded="false" aria-controls="details3">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Aaron Amorosi</div>
+                            <div class="result-designation">SBEP Certified Since: 2025-10-12</div>
+                            <div class="result-status status-non-practicing">Non-Practicing</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details3" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>4121</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Aaron</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Amorosi</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>SBEP</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Non-Practicing</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2025-10-12</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Halifax</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Nova Scotia</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Science & Ecosystem Management, Fisheries & Aquaculture</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-row" onclick="toggleDetails('details3')" role="button" tabindex="0" aria-expanded="false" aria-controls="details3">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Abdullah Durrani</div>
+                            <div class="result-designation">SBEP Certified Since: 2025-10-12</div>
+                            <div class="result-status status-non-practicing">Non-Practicing</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details3" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>4521</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Abdullah</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Durrani</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>SBEP</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Non-Practicing</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2025-10-12</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Halifax</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Nova Scotia</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Science & Ecosystem Management, Fisheries & Aquaculture</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-row" onclick="toggleDetails('details4')" role="button" tabindex="0" aria-expanded="false" aria-controls="details4">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Aaron Enquist</div>
+                            <div class="result-designation">EPt Certified Since: 2025-01-12</div>
+                            <div class="result-status status-emeritus">Emeritus</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details4" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>4389</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Aaron</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Enquist</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>EPt</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Emeritus</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2025-01-12</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Edmonton</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Alberta</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Energy, Sustainability</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-row" onclick="toggleDetails('details5')" role="button" tabindex="0" aria-expanded="false" aria-controls="details5">
+                        <div class="result-bullet" aria-hidden="true"></div>
+                        <div class="result-content">
+                            <div class="result-name">Abigail Herd</div>
+                            <div class="result-designation">EPt Certified Since: 2025-01-12</div>
+                            <div class="result-status status-suspended">Suspended</div>
+                        </div>
+                    </div>
+                    <div class="result-details" id="details5" role="region" aria-label="Member details">
+                        <table class="detail-table">
+                            <tbody>
+                                <tr>
+                                    <td>Certification ID:</td>
+                                    <td>4412</td>
+                                </tr>
+                                <tr>
+                                    <td>First Name:</td>
+                                    <td>Abigail</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Name:</td>
+                                    <td>Herd</td>
+                                </tr>
+                                <tr>
+                                    <td>Designation(s):</td>
+                                    <td>EPt</td>
+                                </tr>
+                                <tr>
+                                    <td>Practicing Status:</td>
+                                    <td>Suspended</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Certified Since:</td>
+                                    <td>2025-01-12</td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td>Winnipeg</td>
+                                </tr>
+                                <tr>
+                                    <td>Province/Territory/State:</td>
+                                    <td>Manitoba</td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td>Canada</td>
+                                </tr>
+                                <tr>
+                                    <td>Area(s) of Specialization:</td>
+                                    <td>Waste Management</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav class="pagination" role="navigation" aria-label="Pagination">
+                <button class="page-btn" aria-label="Page 1">1</button>
+                <button class="page-btn active" aria-label="Page 2, current page" aria-current="page">2</button>
+                <button class="page-btn" aria-label="Page 3">3</button>
+                <span aria-hidden="true">...</span>
+                <button class="page-btn" aria-label="Page 4371">4371</button>
+                <button class="export-btn" aria-label="Export results to PDF">Export Results (PDF)</button>
+            </nav>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
