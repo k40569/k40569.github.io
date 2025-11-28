@@ -429,7 +429,7 @@ body {
 }
 
 .specialization-list.active {
-    max-height: 500px;
+    max-height: 800px;
     opacity: 1;
     margin-top: 10px;
 }
